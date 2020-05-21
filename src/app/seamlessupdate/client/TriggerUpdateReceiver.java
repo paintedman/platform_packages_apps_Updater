@@ -1,6 +1,7 @@
 package app.seamlessupdate.client;
 
-import android.support.v4.content.WakefulBroadcastReceiver;
+import androidx.legacy.content.WakefulBroadcastReceiver;
+
 import android.content.Context;
 import android.content.Intent;
 

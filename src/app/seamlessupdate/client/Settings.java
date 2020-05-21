@@ -45,7 +45,8 @@ public class Settings extends PreferenceActivity {
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!UserManager.get(this).isSystemUser()) {
+        UserManager userManager = (UserManager) this.getSystemService(Context.USER_SERVICE);
+        if (!userManager.isSystemUser()) {
             throw new SecurityException("system user only");
         }
         getPreferenceManager().setStorageDeviceProtected();
