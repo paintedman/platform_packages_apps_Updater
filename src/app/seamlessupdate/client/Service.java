@@ -256,14 +256,30 @@ public class Service extends IntentService {
                 return;
             }
 
+            /* Request changelog from server */
+            String changelog = "";
+            try {
+                Log.d(TAG, "fetching changelog for " + DEVICE + "-" + channel);
+                String changelogLine = "";
+                input = fetchData(DEVICE + "-" + channel + "-changelog").getInputStream();
+                final BufferedReader changelogReader = new BufferedReader(new InputStreamReader(input));
+                while ((changelogLine = changelogReader.readLine()) != null) {
+                    changelog += changelogLine + "\n";
+                }
+                changelogReader.close();
+            } catch (Exception e) {
+                Log.d(TAG, "update description not found");
+            }
+
             Settings.setAvailableUpdateVersion(this, targetIncremental);
             Settings.setAvailableUpdateDate(this, targetBuildDate);
+            Settings.setAvailableUpdateDescription(this, changelog);
 
             /* By default service should only check for update without downloading it immediately */
             if (intent.getAction() == null || !intent.getAction().equals(SERVICE_ACTION_INSTALL)) {
                 Settings.setUpdateStatus(this, Settings.UpdateStatus.Available);
                 notificationHandler.showUpdateAvailableNotification();
-                broadcastHandler.sendUpdateInfo(targetIncremental, targetBuildDate);
+                broadcastHandler.sendUpdateInfo(targetIncremental, targetBuildDate, changelog);
                 mUpdating = false;
                 return;
             }

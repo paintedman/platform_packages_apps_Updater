@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private UpdateInfoReceiver updateInfoReceiver;
     private TextView tvBuildVersion;
     private TextView tvBuildDate;
+    private TextView tvBuildDescription;
     private ProgressBar pbProgressBar;
     private TextView tvProgressText;
     private Button btnUpdateAction;
@@ -154,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
         updateDone = findViewById(R.id.update_waits_for_reboot);
         tvBuildVersion = findViewById(R.id.build_version);
         tvBuildDate = findViewById(R.id.build_date);
+        tvBuildDescription = findViewById(R.id.build_description);
         pbProgressBar = findViewById(R.id.progress_bar);
         tvProgressText = findViewById(R.id.progress_text);
 
@@ -203,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
         tvBuildVersion.setText(Settings.getAvailableUpdateVersion(this));
         tvBuildDate.setText(StringGenerator.getDateLocalizedUTC(this, DateFormat.LONG,
                 Settings.getAvailableUpdateDate(this)));
+        tvBuildDescription.setText(Settings.getAvailableUpdateDescription(this));
     }
 
     private void prepareUiUpdateDone() {
@@ -305,10 +308,12 @@ public class MainActivity extends AppCompatActivity {
         private void onReceiveUpdateInfo(Context context, Intent intent) {
             String buildVersion = intent.getStringExtra("buildVersion");
             long buildDate = intent.getLongExtra("buildDate", -1);
+            String buildDescription = intent.getStringExtra("buildDescription");
 
             tvBuildVersion.setText(buildVersion);
             String buildDateString = StringGenerator.getDateLocalizedUTC(context, DateFormat.LONG, buildDate);
             tvBuildDate.setText(buildDateString);
+            tvBuildDescription.setText(buildDescription);
         }
     }
 }

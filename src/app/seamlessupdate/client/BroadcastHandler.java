@@ -31,10 +31,11 @@ public class BroadcastHandler {
         broadcastManager.sendBroadcast(intent);
     }
 
-    public void sendUpdateInfo(String version, long date) {
+    public void sendUpdateInfo(String version, long date, String changelog) {
         Intent intent = new Intent(NOTIFY_UPDATE_INFO);
         intent.putExtra("buildVersion", version);
         intent.putExtra("buildDate", date);
+        intent.putExtra("buildDescription", changelog);
         broadcastManager.sendBroadcast(intent);
     }
 

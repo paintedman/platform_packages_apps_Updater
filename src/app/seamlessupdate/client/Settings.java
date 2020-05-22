@@ -20,6 +20,7 @@ public class Settings {
     private static final String KEY_LAST_UPDATE_CHECK = "last_update_check";
     private static final String KEY_AVAILABLE_UPDATE_VERSION = "available_update_version";
     private static final String KEY_AVAILABLE_UPDATE_DATE = "available_update_date";
+    private static final String KEY_AVAILABLE_UPDATE_DESCRIPTION = "available_update_description";
 
     public enum UpdateStatus {
         NotAvailable,
@@ -95,6 +96,13 @@ public class Settings {
         getPreferences(context).edit().putLong(KEY_AVAILABLE_UPDATE_DATE, newValue).apply();
     }
 
+    public static String getAvailableUpdateDescription(final Context context) {
+        return getPreferences(context).getString(KEY_AVAILABLE_UPDATE_DESCRIPTION, "");
+    }
+
+    public static void setAvailableUpdateDescription(final Context context, String newValue) {
+        getPreferences(context).edit().putString(KEY_AVAILABLE_UPDATE_DESCRIPTION, newValue).apply();
+    }
 
     /* UI for SettingsActivity*/
     public static class SettingsFragment extends PreferenceFragmentCompat {
