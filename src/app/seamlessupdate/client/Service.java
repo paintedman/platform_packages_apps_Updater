@@ -44,7 +44,10 @@ public class Service extends IntentService {
     private static final String PREFERENCE_DOWNLOAD_FILE = "download_file";
     private static final int HTTP_RANGE_NOT_SATISFIABLE = 416;
 
+    public static final String SERVICE_ACTION_INSTALL = "install_update";
+
     private NotificationHandler notificationHandler;
+    private BroadcastHandler broadcastHandler;
     private boolean mUpdating = false;
 
     public Service() {
@@ -55,6 +58,7 @@ public class Service extends IntentService {
     public void onCreate() {
         super.onCreate();
         notificationHandler = new NotificationHandler(this);
+        broadcastHandler = new BroadcastHandler(this);
     }
 
     private URLConnection fetchData(final String path) throws IOException {
@@ -66,6 +70,7 @@ public class Service extends IntentService {
     }
 
     private void applyUpdate(final long payloadOffset, final String[] headerKeyValuePairs) {
+        Settings.setUpdateStatus(this, Settings.UpdateStatus.Installing);
         final CountDownLatch monitor = new CountDownLatch(1);
         final UpdateEngine engine = new UpdateEngine();
         engine.bind(new UpdateEngineCallback() {
@@ -73,9 +78,11 @@ public class Service extends IntentService {
             public void onStatusUpdate(int status, float percent) {
                 Log.d(TAG, "onStatusUpdate: " + status + ", " + percent * 100 + "%");
                 if (status == DOWNLOADING) {
-                    notificationHandler.showInstallNotification(Math.round(percent * 100), 200);
+                    notificationHandler.showInstallNotification(Service.this, Math.round(percent * 100)/2, 100);
+                    broadcastHandler.sendUpdateInstallProgress(Math.round(percent * 100)/2, 100);
                 } else if (status == FINALIZING) {
-                    notificationHandler.showInstallNotification(Math.round(percent * 100) + 100, 200);
+                    notificationHandler.showInstallNotification(Service.this, Math.round(percent * 100)/2 + 50, 100);
+                    broadcastHandler.sendUpdateInstallProgress(Math.round(percent * 100)/2 + 50, 100);
                 }
             }
 
@@ -207,11 +214,13 @@ public class Service extends IntentService {
             IdleReboot.schedule(this);
         }
         notificationHandler.showRebootNotification();
+        broadcastHandler.sendUpdateDone();
+        Settings.setUpdateStatus(this, Settings.UpdateStatus.UpdateDone);
     }
 
     @Override
     protected void onHandleIntent(final Intent intent) {
-        Log.d(TAG, "onHandleIntent");
+        Log.d(TAG, "onHandleIntent, action: " + intent.getAction());
 
         final PowerManager pm = getSystemService(PowerManager.class);
         final WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
@@ -223,7 +232,7 @@ public class Service extends IntentService {
                 return;
             }
             final SharedPreferences preferences = Settings.getPreferences(this);
-            if (preferences.getBoolean(Settings.KEY_WAITING_FOR_REBOOT, false)) {
+            if (Settings.getIsWaitingForReboot(this)) {
                 Log.d(TAG, "updated already, waiting for reboot");
                 return;
             }
@@ -242,9 +251,23 @@ public class Service extends IntentService {
             final long sourceBuildDate = SystemProperties.getLong("ro.build.date.utc", 0);
             if (targetBuildDate <= sourceBuildDate) {
                 Log.d(TAG, "targetBuildDate: " + targetBuildDate + " not higher than sourceBuildDate: " + sourceBuildDate);
+                broadcastHandler.sendUpdateNotAvailable();
                 mUpdating = false;
                 return;
             }
+
+            Settings.setAvailableUpdateVersion(this, targetIncremental);
+            Settings.setAvailableUpdateDate(this, targetBuildDate);
+
+            /* By default service should only check for update without downloading it immediately */
+            if (intent.getAction() == null || !intent.getAction().equals(SERVICE_ACTION_INSTALL)) {
+                Settings.setUpdateStatus(this, Settings.UpdateStatus.Available);
+                notificationHandler.showUpdateAvailableNotification();
+                broadcastHandler.sendUpdateInfo(targetIncremental, targetBuildDate);
+                mUpdating = false;
+                return;
+            }
+            notificationHandler.cancelUpdateAvailableNotification();
 
             String downloadFile = preferences.getString(PREFERENCE_DOWNLOAD_FILE, null);
             long downloaded = UPDATE_PATH.length();
@@ -282,7 +305,8 @@ public class Service extends IntentService {
                 Files.deleteIfExists(UPDATE_PATH.toPath());
             }
 
-            notificationHandler.showDownloadNotification((int) downloaded, contentLength);
+            Settings.setUpdateStatus(this, Settings.UpdateStatus.Downloading);
+            notificationHandler.showDownloadNotification(this, (int) downloaded, contentLength);
 
             final OutputStream output = new FileOutputStream(UPDATE_PATH, downloaded != 0);
             preferences.edit().putString(PREFERENCE_DOWNLOAD_FILE, downloadFile).commit();
@@ -296,7 +320,8 @@ public class Service extends IntentService {
                 final long now = System.nanoTime();
                 if (now - last > 1000 * 1000 * 1000) {
                     Log.d(TAG, "downloaded " + downloaded + " from " + contentLength + " bytes");
-                    notificationHandler.showDownloadNotification((int) downloaded, contentLength);
+                    notificationHandler.showDownloadNotification(this, (int) downloaded, contentLength);
+                    broadcastHandler.sendUpdateDownloadProgress(downloaded, contentLength);
                     last = now;
                 }
             }
@@ -309,7 +334,10 @@ public class Service extends IntentService {
         } catch (GeneralSecurityException | IOException e) {
             Log.e(TAG, "failed to download and install update", e);
             mUpdating = false;
+            Settings.setUpdateStatus(this, Settings.UpdateStatus.NotAvailable);
             PeriodicJob.scheduleRetry(this);
+            notificationHandler.cancelUpdateAvailableNotification();
+            broadcastHandler.sendUpdateFailed();
         } finally {
             Log.d(TAG, "release wake locks");
             wakeLock.release();

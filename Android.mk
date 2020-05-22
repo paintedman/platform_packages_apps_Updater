@@ -54,9 +54,9 @@ updater_system_libs_path := $(abspath $(LOCAL_PATH))/system_libs
 include $(BUILD_SYSTEM)/base_rules.mk
 
 $(LOCAL_BUILT_MODULE): $(updater_system_deps)
-	$(hide) mkdir -p $(updater_system_libs_path)
-	$(hide) rm -rf $(updater_system_libs_path)/*.jar
-	$(hide) cp $(updater_system_deps) $(updater_system_libs_path)/framework.jar
-	$(hide) echo "Fake: $@"
-	$(hide) mkdir -p $(dir $@)
-	$(hide) touch $@
+	mkdir -p $(updater_system_libs_path)
+	rm -rf $(updater_system_libs_path)/*.jar
+	cp $(updater_system_deps) $(updater_system_libs_path)/framework.jar
+	echo "Fake: $@"
+	mkdir -p $(dir $@)
+	touch $@

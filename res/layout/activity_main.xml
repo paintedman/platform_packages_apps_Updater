@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.MainActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/theme_primary"
+        android:layout_alignParentTop="true"
+        android:theme="@style/AppTheme.ActionBarTheme"/>
+
+    <LinearLayout
+        android:id="@+id/header_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="24dp"
+        android:orientation="vertical"
+        android:background="@color/theme_primary"
+        android:layout_below="@id/toolbar">
+
+        <TextView
+            android:id="@+id/header_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:paddingBottom="16dp"
+            android:textColor="@color/updater_header_text_color"
+            android:textSize="56sp"
+            android:text="OS Version"/>
+
+        <TextView
+            android:id="@+id/header_build_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/updater_header_text_color"
+            android:textSize="16sp"
+            android:text="build version"/>
+
+        <TextView
+            android:id="@+id/header_build_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/updater_header_text_color"
+            android:textSize="16sp"
+            android:text="build date"/>
+
+        <TextView
+            android:id="@+id/header_last_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/updater_header_text_color"
+            android:textSize="16sp"
+            android:text="last check date"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/update_not_available"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no_new_updates"
+        android:gravity="center"
+        android:paddingTop="30dp"
+        android:textSize="20sp"
+        android:layout_below="@+id/header_layout"
+        android:visibility="visible"/>
+
+    <LinearLayout
+        android:id="@+id/update_waits_for_reboot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/header_layout"
+        android:padding="16dp"
+        android:orientation="vertical"
+        android:visibility="invisible">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/notification_title"
+            android:paddingTop="30dp"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/notification_text"
+            android:paddingTop="30dp"
+            android:textSize="16sp"/>
+
+        <Button
+            android:id="@+id/reboot_button"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="60dp"
+            android:padding="8dp"
+            android:textSize="18sp"
+            android:text="@string/notification_reboot_action" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/update_available_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/header_layout"
+        android:visibility="invisible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:weightSum="1"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/build_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:textSize="14sp"
+                    tools:text="29 February 2018" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/build_version"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.87"
+                        android:drawablePadding="8dp"
+                        android:maxLines="1"
+                        android:layout_weight="1"
+                        android:paddingBottom="4sp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="24sp"
+                        tools:text="New OS Version" />
+
+                    <Button
+                        android:id="@+id/update_action"
+                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp"
+                        tools:text="Pause" />
+
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ProgressBar
+                        android:id="@+id/progress_bar"
+                        style="@style/AppTheme.ProgressBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="4sp"
+                        android:visibility="gone"
+                        tools:progress="65" />
+
+                    <TextView
+                        android:id="@+id/progress_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/progress_bar"
+                        android:ellipsize="marquee"
+                        android:singleLine="true"
+                        android:visibility="gone"
+                        tools:text="162 of 300 MB (3 minutes left) • 65%" />
+
+                </RelativeLayout>
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

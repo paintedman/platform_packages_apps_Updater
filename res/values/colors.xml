@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="updater_header_text_color">#FFFFFF</color>
+
+    <color name="theme_primary">#4186DA</color>
+    <color name="theme_primary_dark">#185AAA</color>
+    <color name="theme_accent">#5E9CE8</color>
+
+    <color name="inverted">#212121</color>
+    <color name="ic_background">#333333</color>
+</resources>

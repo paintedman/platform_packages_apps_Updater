@@ -1,5 +1,6 @@
 package app.seamlessupdate.client;
 
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -7,13 +8,15 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
+import app.seamlessupdate.client.ui.MainActivity;
+
 import static android.app.NotificationManager.IMPORTANCE_LOW;
 
 public class NotificationHandler {
 
-    private static final int NOTIFICATION_ID_DOWNLOAD = 1;
-    private static final int NOTIFICATION_ID_INSTALL = 2;
+    private static final int NOTIFICATION_ID_PROGRESS = 1;
     private static final int NOTIFICATION_ID_REBOOT = 3;
+    private static final int NOTIFICATION_ID_UPDATE_AVAILABLE = 4;
     private static final String NOTIFICATION_CHANNEL_ID = "updates2";
     private static final String NOTIFICATION_CHANNEL_ID_PROGRESS = "progress";
     private static final int PENDING_REBOOT_ID = 1;
@@ -28,7 +31,7 @@ public class NotificationHandler {
         createProgressNotificationChannel();
     }
 
-    void showDownloadNotification(int progress, int max) {
+    void showDownloadNotification(IntentService service, int progress, int max) {
         String title = context.getString(R.string.notification_download_title);
         Notification.Builder builder = new Notification.Builder(context, NOTIFICATION_CHANNEL_ID_PROGRESS)
                 .setContentIntent(getPendingSettingsIntent())
@@ -37,11 +40,14 @@ public class NotificationHandler {
                 .setSmallIcon(R.drawable.ic_system_update_white_24dp);
         if (max <= 0) builder.setProgress(0, 0, true);
         else builder.setProgress(max, progress, false);
-        notificationManager.notify(NOTIFICATION_ID_DOWNLOAD, builder.build());
+
+        /* We need startForeground to not allow Android to close
+        * service when we close MainActivity */
+        service.startForeground(NOTIFICATION_ID_PROGRESS, builder.build());
     }
 
     void cancelDownloadNotification() {
-        notificationManager.cancel(NOTIFICATION_ID_DOWNLOAD);
+        notificationManager.cancel(NOTIFICATION_ID_PROGRESS);
     }
 
     void showRebootNotification() {
@@ -62,7 +68,7 @@ public class NotificationHandler {
                 .build());
     }
 
-    void showInstallNotification(int progress, int max) {
+    void showInstallNotification(IntentService service, int progress, int max) {
         String title = context.getString(R.string.notification_install_title);
         Notification.Builder builder = new Notification.Builder(context, NOTIFICATION_CHANNEL_ID_PROGRESS)
                 .setContentIntent(getPendingSettingsIntent())
@@ -70,11 +76,34 @@ public class NotificationHandler {
                 .setOngoing(true)
                 .setProgress(max, progress, false)
                 .setSmallIcon(R.drawable.ic_system_update_white_24dp);
-        notificationManager.notify(NOTIFICATION_ID_INSTALL, builder.build());
+
+        /* We need startForeground to not allow Android to close
+         * service when we close MainActivity */
+        service.startForeground(NOTIFICATION_ID_PROGRESS, builder.build());
     }
 
     void cancelInstallNotification() {
-        notificationManager.cancel(NOTIFICATION_ID_INSTALL);
+        notificationManager.cancel(NOTIFICATION_ID_PROGRESS);
+    }
+
+    void showUpdateAvailableNotification() {
+        final NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+                context.getString(R.string.notification_new_update_title), NotificationManager.IMPORTANCE_HIGH);
+        channel.enableLights(true);
+        channel.enableVibration(true);
+        notificationManager.createNotificationChannel(channel);
+        notificationManager.notify(NOTIFICATION_ID_UPDATE_AVAILABLE, new Notification.Builder(context, NOTIFICATION_CHANNEL_ID)
+                .setContentIntent(getPendingSettingsIntent())
+                .setContentTitle( context.getString(R.string.checking_for_updates ) )
+                .setContentText( context.getString(R.string.notification_new_update_title ) )
+                .setOngoing(true)
+                .setSmallIcon(R.drawable.ic_system_update_white_24dp)
+                .setOnlyAlertOnce(true)
+                .build());
+    }
+
+    void cancelUpdateAvailableNotification() {
+        notificationManager.cancel(NOTIFICATION_ID_UPDATE_AVAILABLE);
     }
 
     private void createProgressNotificationChannel() {
@@ -84,7 +113,7 @@ public class NotificationHandler {
     }
 
     private PendingIntent getPendingSettingsIntent() {
-        return PendingIntent.getActivity(context, PENDING_SETTINGS_ID, new Intent(context, Settings.class), 0);
+        return PendingIntent.getActivity(context, PENDING_SETTINGS_ID, new Intent(context, MainActivity.class), 0);
     }
 
 }

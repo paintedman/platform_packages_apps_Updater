@@ -21,7 +21,7 @@ public class PeriodicJob extends JobService {
     private static final long MIN_LATENCY_MILLIS = 4 * 60 * 1000;
     private static final String EXTRA_JOB_CHANNEL = "extra_job_channel";
 
-    static void schedule(final Context context, final boolean force) {
+    public static void schedule(final Context context, final boolean force) {
         final String channel = SystemProperties.get("sys.update.channel", Settings.getChannel(context));
         final int networkType = Settings.getNetworkType(context);
         final boolean batteryNotLow = Settings.getBatteryNotLow(context);

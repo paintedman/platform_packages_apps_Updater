@@ -5,6 +5,7 @@
     <string name="notification_channel_progress">Update Progress</string>
     <string name="notification_download_title">Downloading system update</string>
     <string name="notification_install_title">Installing system update</string>
+    <string name="notification_new_update_title">System update available</string>
     <string name="notification_title">Update successfully installed</string>
     <string name="notification_text">Please reboot the device to run the latest OS release.</string>
     <string name="notification_reboot_action">Reboot</string>
@@ -22,4 +23,34 @@
     <string name="idle_reboot_summary">Automatically reboot once the device is idle after successfully installing an update</string>
     <string name="check_for_updates_title">Check for updates</string>
     <string name="check_for_updates_summary">Tap to check for updates as soon as possible</string>
+
+    <string name="no_new_updates">Software is up to date</string>
+    <string name="checking_for_updates">Checking for updates</string>
+    <string name="update_failed">Failed to install update</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="header_title_text">%1$s</string>
+    <string name="header_android_version">Android %1$s</string>
+    <string name="header_last_updates_check">Last checked: %1$s (%2$s)</string>
+
+    <string name="build_size_mb">%1$s MB</string>
+    <string name="update_download_progress">%1$s MB of %2$s MB • %3$s</string>
+    <string name="update_install_progress">%1$s</string>
+
+    <string name="update_action_install">Install</string>
+    <string name="update_action_downloading">Downloading</string>
+    <string name="update_action_installing">Installing</string>
+
+    <plurals name="eta_seconds">
+        <item quantity="one">1 second left</item>
+        <item quantity="other">%d seconds left</item>
+    </plurals>
+    <plurals name="eta_minutes">
+        <item quantity="one">1 minute left</item>
+        <item quantity="other">%d minutes left</item>
+    </plurals>
+    <plurals name="eta_hours">
+        <item quantity="one">1 hour left</item>
+        <item quantity="other">%d hours left</item>
+    </plurals>
 </resources>

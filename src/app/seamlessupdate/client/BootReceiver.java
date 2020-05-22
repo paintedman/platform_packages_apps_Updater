@@ -12,6 +12,11 @@ public class BootReceiver extends BroadcastReceiver {
         if (context.getSystemService(UserManager.class).isSystemUser()) {
             Settings.getPreferences(context).edit().putBoolean(Settings.KEY_WAITING_FOR_REBOOT, false).apply();
             PeriodicJob.schedule(context);
+
+            Settings.setUpdateStatus(context, Settings.UpdateStatus.NotAvailable);
+            Settings.setAvailableUpdateVersion(context, "");
+            Settings.setAvailableUpdateDate(context, -1);
+            Settings.setAvailableUpdateDescription(context, "");
         } else {
             context.getPackageManager().setApplicationEnabledSetting(context.getPackageName(),
                 PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
